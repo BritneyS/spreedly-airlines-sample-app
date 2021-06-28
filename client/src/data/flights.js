@@ -33,4 +33,4 @@ const flights = [
     },
 ]
 
-export default flightInfo
+export default flights
