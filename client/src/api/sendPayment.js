@@ -1,5 +1,10 @@
-function sendPayment(paymentToken, amountInCents) {
-  fetch("http://localhost:8080/purchase", {
+const payment_method = {
+  direct: "purchase",
+  receiver: "receive",
+};
+
+function sendPayment(paymentToken, amountInCents, paymentType) {
+  fetch(`http://localhost:8080/${payment_method[paymentType]}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const submitPayment = require("./scripts/submitPayment");
+const submitPaymentToReceiver = require("./scripts/submitPaymentToReceiver");
 const app = express();
 
 // Security middleware
@@ -29,6 +30,21 @@ app.post("/purchase", cors(corsOptions), async (req, res, next) => {
     const paymentToken = req.body.payment_token;
     const amountInCents = req.body.amount_in_cents;
     const purchaseResponse = await submitPayment(paymentToken, amountInCents);
+    res.status(200).json(purchaseResponse);
+  } catch (err) {
+    next();
+  }
+});
+
+// POST /receive
+app.post("/receive", cors(corsOptions), async (req, res, next) => {
+  try {
+    const paymentToken = req.body.payment_token;
+    const amountInCents = req.body.amount_in_cents;
+    const purchaseResponse = await submitPaymentToReceiver(
+      paymentToken,
+      amountInCents
+    );
     res.status(200).json(purchaseResponse);
   } catch (err) {
     next();

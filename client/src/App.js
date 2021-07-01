@@ -30,12 +30,25 @@ function App() {
       const amountField = document.getElementById("amount");
       const amountInCents = amountField.getAttribute("value");
 
-      sendPayment(token, amountInCents);
+      const paymentTypeField = document.getElementById("payment_type");
+      sendPayment(token, amountInCents, paymentTypeField.getAttribute("value"));
     });
   };
 
   function centsToDollar(priceInCents) {
     return priceInCents / 100;
+  }
+
+  function handleDirectPaymentButtonClick(priceInCents) {
+    const paymentTypeField = document.getElementById("payment_type");
+    paymentTypeField.setAttribute("value", "direct");
+    openSpreedlyExpress(priceInCents);
+  }
+
+  function handleReceiverPaymentButtonClick(priceInCents) {
+    const paymentTypeField = document.getElementById("payment_type");
+    paymentTypeField.setAttribute("value", "receiver");
+    openSpreedlyExpress(priceInCents);
   }
 
   return (
@@ -68,14 +81,33 @@ function App() {
                           id="payment_method_token"
                         />
                         <input type="hidden" name="amount" id="amount" />
-                        <button
-                          className="button is-primary has-text-weight-semibold"
-                          onClick={() =>
-                            openSpreedlyExpress(flight.priceInCents)
-                          }
-                        >
-                          Book ✈️
-                        </button>
+                        <input
+                          type="hidden"
+                          name="payment_type"
+                          id="payment_type"
+                        />
+                        <div className=" is-flex is-flex-direction-column mx-6">
+                          <button
+                            className="button is-primary has-text-weight-semibold mb-3"
+                            onClick={() =>
+                              handleDirectPaymentButtonClick(
+                                flight.priceInCents
+                              )
+                            }
+                          >
+                            Book ✈️
+                          </button>
+                          <button
+                            className="button is-primary has-text-weight-semibold"
+                            onClick={() =>
+                              handleReceiverPaymentButtonClick(
+                                flight.priceInCents
+                              )
+                            }
+                          >
+                            Book with Expedio ✈️
+                          </button>
+                        </div>
                       </form>
                     </div>
                   </li>
