@@ -1,8 +1,14 @@
 import "./App.css";
 import flights from "./data/flights";
 import sendPayment from "./api/sendPayment";
+import retrievePaymentInfo from "./api/retrievePaymentInfo";
+import { useState } from "react";
 
 function App() {
+  const [customerCreditCardInfo, setCustomerCreditCardInfo] = useState({
+    full_name: null,
+    number: null,
+  });
   function openSpreedlyExpress(amountInCents) {
     const amountField = document.getElementById("amount");
     amountField.setAttribute("value", amountInCents);
@@ -32,6 +38,14 @@ function App() {
 
       const paymentTypeField = document.getElementById("payment_type");
       sendPayment(token, amountInCents, paymentTypeField.getAttribute("value"));
+      retrievePaymentInfo(token).then((data) =>
+        setCustomerCreditCardInfo({
+          full_name: data["transaction"]["basis_payment_method"]["full_name"],
+          number: data["transaction"]["payment_method"]["third_party_token"]
+            .match(/\d(.*)/g)
+            .join(),
+        })
+      );
     });
   };
 
@@ -114,6 +128,17 @@ function App() {
                 );
               })}
         </ul>
+      </section>
+      <section className="columns is-justify-content-center my-6">
+        <div className="box shop-card column">
+          <div className="media-content">
+            <h2 className="is-size-5 has-text-weight-semibold">
+              Your Credit Card Info For Later
+            </h2>
+            <p>{`Full Name: ${customerCreditCardInfo.full_name}`}</p>
+            <p>{`Number: ${customerCreditCardInfo.number}`}</p>
+          </div>
+        </div>
       </section>
     </main>
   );
