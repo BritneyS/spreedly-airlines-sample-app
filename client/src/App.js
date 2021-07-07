@@ -3,12 +3,24 @@ import flights from "./data/flights";
 import sendPayment from "./api/sendPayment";
 import retrievePaymentInfo from "./api/retrievePaymentInfo";
 import { useState } from "react";
+import retrieveTransactionInfo from "./api/retrieveTransactionInfo";
 
 function App() {
   const [customerCreditCardInfo, setCustomerCreditCardInfo] = useState({
     full_name: null,
     number: null,
   });
+
+  const [transactions, setTransactions] = useState([
+    {
+      token: undefined,
+      transaction_type: undefined,
+      amount: undefined,
+      currency_code: undefined,
+      message: undefined,
+    },
+  ]);
+
   function openSpreedlyExpress(amountInCents) {
     const amountField = document.getElementById("amount");
     amountField.setAttribute("value", amountInCents);
@@ -32,6 +44,11 @@ function App() {
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
     window.SpreedlyExpress.onPaymentMethod(function (token, paymentMethod) {
+      const paymentMethodTokenField = document.getElementById(
+        "payment_method_token"
+      );
+      paymentMethodTokenField.setAttribute("value", token);
+
       // Send requisite payment method info to backend
       const amountField = document.getElementById("amount");
       const amountInCents = amountField.getAttribute("value");
@@ -48,6 +65,32 @@ function App() {
       );
     });
   };
+
+  function handleGetTransactions(e) {
+    e.preventDefault();
+    const paymentMethodTokenField = document.getElementById(
+      "payment_method_token"
+    );
+    const paymentMethodToken = paymentMethodTokenField.getAttribute("value");
+
+    retrieveTransactionInfo(paymentMethodToken).then((data) =>
+      setTransactions(() =>
+        data["transactions"]
+          .filter((transaction) => {
+            return transaction.transaction_type === "Purchase";
+          })
+          .map((transaction) => {
+            return {
+              token: transaction.token,
+              transaction_type: transaction.transaction_type,
+              amount: transaction.amount,
+              currency_code: transaction.currency_code,
+              message: transaction.message,
+            };
+          })
+      )
+    );
+  }
 
   function centsToDollar(priceInCents) {
     return priceInCents / 100;
@@ -137,6 +180,32 @@ function App() {
             </h2>
             <p>{`Full Name: ${customerCreditCardInfo.full_name}`}</p>
             <p>{`Number: ${customerCreditCardInfo.number}`}</p>
+          </div>
+        </div>
+      </section>
+      <section className="columns is-justify-content-center my-6">
+        <div className="box shop-card column">
+          <div className="media-content">
+            <h2 className="is-size-5 has-text-weight-semibold">
+              List of transactions
+            </h2>
+            <button
+              className="button is-primary has-text-weight-semibold mb-3"
+              onClick={handleGetTransactions}
+            >
+              Get Transaction List
+            </button>
+            <ul>
+              {transactions.length === 0 || transactions[0].token === undefined
+                ? "Loading..."
+                : transactions.map((transaction) => {
+                    return (
+                      <li key={transaction.token}>
+                        <p>{`${transaction.transaction_type}, ${transaction.amount}, ${transaction.currency_code}, ${transaction.message}`}</p>
+                      </li>
+                    );
+                  })}
+            </ul>
           </div>
         </div>
       </section>
