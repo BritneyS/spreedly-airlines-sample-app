@@ -26,7 +26,7 @@ config/master.key
 
 # dotenv
 # TODO Comment out this rule if environment variables can be committed
-.env
+*.env
 
 ## Environment normalization:
 /.bundle
@@ -61,6 +61,13 @@ node_modules/
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
 # Ignore uploaded files in development
 /storage/*
